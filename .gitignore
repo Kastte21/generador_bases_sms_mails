@@ -1,0 +1,24 @@
+/data/
+/notebooks/
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+venv/
+.env/
+*.env
+
+*.env
+config.ini
+settings.py (si contiene datos privados)
+
+site-packages/
+
+*.log
+*.tmp
+
+*.sqlite3
+
+.DS_Store
+Thumbs.db
