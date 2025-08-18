@@ -1,0 +1,30 @@
+# config/mappings.yml
+
+# Mapeo para Mails - Deuda Total
+mails_deuda_total_map:
+  IDC: 'idccliente'
+  CLIENTE: 'cliente'
+  DTOTALAC: 'dtotalac'
+  MODELO: 'modelo'
+
+# Mapeo para Mails - Descuento Regular
+mails_descuento_regular_map:
+  IDC: 'idccliente'
+  CLIENTE: 'cliente'
+  DTOTALAC: 'dtotalac'
+  DREG: 'dreg'
+  CUOTA: 'cuota'
+  MODELO: 'modelo'
+
+# Mapeo para Mails - Comparativo
+mails_comparativo_map:
+  IDC: 'idccliente'
+  CLIENTE: 'cliente'
+  DTOTALAC: 'dtotalac'
+  DREG: 'dreg'
+  CUOTA: 'cuota'
+  ECLAU: 'dcomp'
+  EJUL: 'dcomp'
+  EMAX: 'dcomp'
+  DCLAU: 'dcomp'
+  MODELO: 'modelo'
