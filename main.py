@@ -1,7 +1,7 @@
 import sys
 import logging
 from datetime import datetime
-from app.logic import sms_generator, mail_generator
+from app.logic import sms_generator, mail_generator, mail_extractor
 
 # Configuración de logging
 logging.basicConfig(
@@ -17,7 +17,7 @@ def show_menu():
     print("=" * 60)
     print(" 1. Envío SMS")
     print(" 2. Envío MAILS")
-    print(" 3. Extraer MAILS ranking 1 (No implementado)")
+    print(" 3. Extraer MAILS ranking 1")
     print(" 4. Extraer MAILS por cliente (No implementado)")
     print(" 5. Salir")
     print("=" * 60)
@@ -59,7 +59,7 @@ def select_tenor_type() -> str | None:
         elif seleccion in tenores:
             return tenores[seleccion]
         else:
-            print("❌ Opción inválida. Intente nuevamente.")
+            print("\u274C Opción inválida. Intente nuevamente.")
 
 def execute_mail_send() -> bool:
     while True:
@@ -101,15 +101,19 @@ def main():
                 else:
                     continue
 
-            elif option in ["3", "4"]:
-                logging.warning("⚠️ Esta opción aún no ha sido implementada.")
+            elif option == "3":
+                mail_extractor.run_rank_1_mail_extraction()
+                process_executed = True
+
+            elif option in ["4"]:
+                logging.warning("\u26A0\uFE0F Esta opción aún no ha sido implementada.")
 
             elif option == "5":
-                print("\n👋 ¡Hasta luego!")
+                print("\n\U0001F44B ¡Hasta luego!")
                 sys.exit(0)
 
             else:
-                logging.warning("❌ Opción no válida. Por favor, intente de nuevo.")
+                logging.warning("\u274C Opción no válida. Por favor, intente de nuevo.")
 
         except KeyboardInterrupt:
             logging.warning("\n Operación cancelada por el usuario.")
@@ -119,7 +123,7 @@ def main():
 
         if process_executed:
             duration = datetime.now() - start_time
-            logging.info(f"✅ Duración total de la operación: {duration}")
+            logging.info(f"\u2705 Duración total de la operación: {duration}")
 
         input("\nPresione Enter para volver al menú...")
 

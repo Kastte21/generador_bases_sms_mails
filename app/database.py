@@ -67,3 +67,13 @@ def get_campaign_details_for_mails(cursor, dnis: List[str]) -> pl.DataFrame:
         
     column_names = [desc[0] for desc in cursor.description]
     return pl.DataFrame(cursor.fetchall(), schema=column_names, orient="row")
+
+# --- MAILS PERSONALES RANKING 1 ---
+def get_rank_1_mails(cursor) -> pl.DataFrame:
+    query = "SELECT idccliente, email FROM mails WHERE ranking = 1"
+    cursor.execute(query)
+    if cursor.rowcount == 0:
+        return pl.DataFrame()
+        
+    column_names = [desc[0] for desc in cursor.description]
+    return pl.DataFrame(cursor.fetchall(), schema=column_names)

@@ -8,6 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+#---- SMS ----
 def load_individual_sms_files() -> list[tuple[str, pl.DataFrame]]:
     input_dir = settings.SMS_INPUT_DIR
     if not input_dir.exists():
@@ -26,7 +27,6 @@ def load_individual_sms_files() -> list[tuple[str, pl.DataFrame]]:
         }})
         files.append((f.stem, df))
     return files
-
 
 def save_sms_output(df: pl.DataFrame, nombre_base: str) -> Path:
     output_dir = settings.SMS_OUTPUT_DIR
@@ -125,3 +125,30 @@ def save_split_mail_output(df: pl.DataFrame, original_file_path: Path):
         output_path = output_dir / file_name
         data.write_excel(output_path)
         logging.info(f" -> Archivo guardado: {output_path}")
+
+#--- MAILS PERSONALES RANKING 1 ---
+def load_export_mail_base_files() -> list[tuple[Path, pl.DataFrame]]:
+    input_dir = settings.EXPORT_MAILS_INPUT_DIR
+    if not input_dir.exists():
+        raise FileNotFoundError(f"El directorio de entrada no existe: {input_dir}")
+        
+    all_files = list(input_dir.glob('*.xlsx'))
+    if not all_files:
+        return []
+
+    file_data = []
+    for f in all_files:
+        df = pl.read_excel(f, engine='openpyxl')
+        file_data.append((f, df))
+    return file_data
+
+def save_exported_mail_file(df: pl.DataFrame, original_file_path: Path):
+    output_dir = settings.EXPORT_MAILS_OUTPUT_DIR
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    timestamp = datetime.now().strftime("%Y%m%d")
+    base_name = original_file_path.stem
+    output_file = output_dir / f"{base_name}_con_correos_{timestamp}.xlsx"
+    
+    df.write_excel(output_file)
+    logging.info(f"✅ Archivo guardado en: {output_file}")

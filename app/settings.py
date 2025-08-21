@@ -14,6 +14,8 @@ SMS_INPUT_DIR = BASE_DIR / "data/input/SMS"
 SMS_OUTPUT_DIR = BASE_DIR / "data/output/SMS"
 MAILS_INPUT_DIR = BASE_DIR / "data/input/MAILS"
 MAILS_OUTPUT_DIR = BASE_DIR / "data/output/MAILS"
+EXPORT_MAILS_INPUT_DIR = BASE_DIR / "data/input/EXPORT_MAILS"
+EXPORT_MAILS_OUTPUT_DIR = BASE_DIR / "data/output/EXPORT_MAILS"
 
 # --- Configuración de Base de Datos ---
 DB_CONFIG = {
@@ -30,6 +32,12 @@ try:
         MAPPINGS = yaml.safe_load(f)
 except FileNotFoundError:
     raise FileNotFoundError(f"El archivo de mapeos no se encontró en: {CONFIG_PATH}")
+
+# --- Dominios Personales ---
+PERSONAL_EMAIL_DOMAINS = [
+    'gmail.com', 'hotmail.com', 'outlook.com', 
+    'live.com', 'icloud.com', 'yahoo.com'
+]
 
 # --- Constantes del Proceso SMS ---
 COUNTRY_CODE = "51"
