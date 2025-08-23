@@ -187,7 +187,7 @@ def run_sms_generation(tipo_template: str = "TIPO_1"):
 
         for nombre_archivo, df in files:
             logger.info("=" * 60)
-            logger.info(f"📄 Procesando archivo: {nombre_archivo}.xlsx")
+            logger.info(f"\U0001F4C4 Procesando archivo: {nombre_archivo}.xlsx")
 
             try:
                 # 1. Transformaciones
@@ -218,10 +218,10 @@ def run_sms_generation(tipo_template: str = "TIPO_1"):
 
                 # 3. Guardar archivo con nombre personalizado
                 output_file = file_utils.save_sms_output(df_final, nombre_base=nombre_archivo)
-                logger.info(f"✅ Archivo generado: {output_file}")
+                logger.info(f"\u2705 Archivo generado: {output_file}")
 
             except Exception as e:
-                logger.error(f"❌ Error al procesar {nombre_archivo}: {e}", exc_info=True)
+                logger.error(f"\u274C Error al procesar {nombre_archivo}: {e}", exc_info=True)
 
     except Exception as e:
         logger.critical(f"El proceso general falló: {e}", exc_info=True)

@@ -84,8 +84,15 @@ def _process_descuento_regular(df: pl.DataFrame, df_campaigns: pl.DataFrame) -> 
         pl.col("cuota").cast(pl.Int64),
         pl.col("plazo_reg").cast(pl.Int64)
     ])
-    cuota_excedida = df.filter(pl.col("cuota") > pl.col("plazo_reg")).height
-    logger.info(f"⚠️  Registros con cuota mayor al plazo: {cuota_excedida}")
+    cuota_excedida = df.filter(pl.col("cuota") > pl.col("plazo_reg"))
+    logger.info(f"\u26A0\uFE0F  Registros con cuota mayor al plazo: {cuota_excedida.height}")
+
+    if cuota_excedida.height > 0:
+        ids_invalidos = set(cuota_excedida.select("idccliente").to_series().to_list())
+        logger.info(f"Clientes eliminados por cuota > plazo_reg: {len(ids_invalidos)} únicos")
+
+    # Eliminar registros inválidos
+    df = df.filter(pl.col("cuota") <= pl.col("plazo_reg"))
 
     # Verificar correos válidos
     correos_validos = df.filter(pl.col("email").is_not_null()).height
@@ -166,8 +173,15 @@ def _process_comparativo(df: pl.DataFrame, df_campaigns: pl.DataFrame) -> pl.Dat
         pl.col("cuota").cast(pl.Int64),
         pl.col("plazo_reg").cast(pl.Int64)
     ])
-    cuota_excedida = df.filter(pl.col("cuota") > pl.col("plazo_reg")).height
-    logger.info(f"⚠️  Registros con cuota mayor al plazo: {cuota_excedida}")
+    cuota_excedida = df.filter(pl.col("cuota") > pl.col("plazo_reg"))
+    logger.info(f"\u26A0\uFE0F  Registros con cuota mayor al plazo: {cuota_excedida.height}")
+
+    if cuota_excedida.height > 0:
+        ids_invalidos = set(cuota_excedida.select("idccliente").to_series().to_list())
+        logger.info(f"Clientes eliminados por cuota > plazo_reg: {len(ids_invalidos)} únicos")
+
+    # Eliminar registros inválidos
+    df = df.filter(pl.col("cuota") <= pl.col("plazo_reg"))
 
     # Verificar correos válidos
     correos_validos = df.filter(pl.col("email").is_not_null()).height
@@ -189,9 +203,9 @@ def _process_comparativo(df: pl.DataFrame, df_campaigns: pl.DataFrame) -> pl.Dat
 
     return df
 
-def run_mail_generation(mail_type: str):
+def run_mail_generation(mail_type: str, source_table: str = "mails"):
     logger.info("=" * 60)
-    logger.info(f"INICIANDO GENERACIÓN DE BASE MAILS - TIPO: {mail_type.upper()}")
+    logger.info(f"INICIANDO GENERACIÓN DE BASE MAILS - TIPO: {mail_type.upper()} - TABLA: {source_table}")
 
     try:
         mapping_key = f"mails_{mail_type}_map"
@@ -201,7 +215,12 @@ def run_mail_generation(mail_type: str):
             return
 
         with db.get_db_connection() as cursor:
-            df_mails_db = db.get_all_mails(cursor)
+            if source_table == "mails":
+                df_mails_db = db.get_all_mails(cursor)
+            elif source_table == "mailssearch":
+                df_mails_db = db.get_all_mailssearch(cursor)
+            else:
+                raise ValueError(f"Tabla de origen desconocida: {source_table}")
 
             for file_path, df_input in file_data_list:
                 dnis_to_check = df_input.get_column("idccliente").to_list()
@@ -210,7 +229,23 @@ def run_mail_generation(mail_type: str):
                 df_processed = _enrich_with_emails(df_input, df_mails_db)
 
                 if mail_type == "deuda_total":
-                    df_final = _process_deuda_total(df_processed)
+                    ids_enriched = set(df_processed.select("idccliente").to_series().to_list())
+                    ids_validos_campaign = set(df_campaigns_db.select("idccliente").to_series().to_list())
+                    df_filtered = df_processed.filter(pl.col("idccliente").is_in(ids_validos_campaign))
+                    ids_final = set(df_filtered.select("idccliente").to_series().to_list())
+                    ids_retirados = ids_enriched - ids_final
+                    validos = len(ids_final)
+                    retirados = len(ids_retirados)
+
+                    logger.info(f"Clientes válidos en campañas (deuda_total): {validos} | Clientes retirados: {retirados}")
+
+                    if ids_retirados:
+                        logger.info(f"ID de clientes retirados: {', '.join(sorted(map(str, ids_retirados)))}")
+                    else:
+                        logger.info("No se retiraron clientes adicionales.")
+
+                    df_final = _process_deuda_total(df_filtered)
+
                 elif mail_type == "descuento_regular":
                     df_final = _process_descuento_regular(df_processed, df_campaigns_db)
                 elif mail_type == "comparativo":

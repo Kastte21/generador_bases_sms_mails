@@ -22,6 +22,26 @@ def show_menu():
     print(" 5. Salir")
     print("=" * 60)
 
+def select_mail_table() -> str | None:
+    print("\n" + "=" * 60)
+    print("        SELECCIÓN DE TABLA DE MAILS PARA ENVÍO")
+    print("=" * 60)
+    print(" 1. Mails SOLO BCP (tabla: mails)")
+    print(" 2. Mails BCP + SEARCH (tabla: mailssearch)")
+    print(" 3. Volver al menú principal")
+    print("=" * 60)
+
+    while True:
+        seleccion = input("Seleccione una opción (1-3): ").strip()
+        if seleccion == "1":
+            return "mails"
+        elif seleccion == "2":
+            return "mailssearch"
+        elif seleccion == "3":
+            return None
+        else:
+            print("\u274C  Opción inválida. Intente nuevamente.")
+
 # Submenú de mails
 def show_mail_submenu():
     print("\n" + "=" * 60)
@@ -61,7 +81,7 @@ def select_tenor_type() -> str | None:
         else:
             print("\u274C Opción inválida. Intente nuevamente.")
 
-def execute_mail_send() -> bool:
+def execute_mail_send(mail_table: str) -> bool:
     while True:
         show_mail_submenu()
         sub_option = input("Seleccione un tipo de base de Mail (1-4): ").strip()
@@ -71,7 +91,7 @@ def execute_mail_send() -> bool:
             "3": "comparativo"
         }
         if sub_option in mail_type:
-            mail_generator.run_mail_generation(mail_type[sub_option])
+            mail_generator.run_mail_generation(mail_type[sub_option], source_table=mail_table)
             return True
         elif sub_option == "4":
             return False
@@ -95,7 +115,10 @@ def main():
                     continue
 
             elif option == "2":
-                execute = execute_mail_send()
+                selected_table = select_mail_table()
+                if selected_table is None:
+                    continue  # Volver al menú principal
+                execute = execute_mail_send(selected_table)
                 if execute:
                     process_executed = True
                 else:

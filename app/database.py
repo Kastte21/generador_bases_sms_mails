@@ -44,6 +44,13 @@ def get_all_mails(cursor) -> pl.DataFrame:
     df = pl.DataFrame(cursor.fetchall(), schema=column_names, orient="row")
     return df
 
+def get_all_mailssearch(cursor) -> pl.DataFrame:
+    cursor.execute("SELECT idccliente, email, ranking FROM mailssearch")
+    if cursor.rowcount == 0:
+        return pl.DataFrame()
+    column_names = [desc[0] for desc in cursor.description]
+    return pl.DataFrame(cursor.fetchall(), schema=column_names, orient="row")
+
 def get_campaign_details_for_mails(cursor, dnis: List[str]) -> pl.DataFrame:
     if not dnis:
         return pl.DataFrame()
